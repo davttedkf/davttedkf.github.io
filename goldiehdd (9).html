@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Goldiehdd Files</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oswald:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red: #ff1a1a;
+      --red-dim: #8b0000;
+      --bg: #000;
+      --border: #1a1a1a;
+      --muted: #555;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:#ccc; font-family:'Share Tech Mono',monospace; min-height:100vh; overflow-x:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; }
+    body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px); pointer-events:none; z-index:9000; }
+
+    .hero-eyebrow { font-size:0.7rem; color:var(--red); letter-spacing:6px; text-transform:uppercase; margin-bottom:1rem; animation:flicker 4s infinite; }
+    @keyframes flicker { 0%,95%,100%{opacity:1} 96%{opacity:0.3} 97%{opacity:1} 98%{opacity:0.1} 99%{opacity:1} }
+    .hero-title { font-family:'Oswald',sans-serif; font-size:clamp(2.5rem,8vw,5.5rem); color:#fff; letter-spacing:4px; line-height:1; margin-bottom:0.5rem; }
+    .hero-title span { color:var(--red); }
+    .hero-sub { font-size:0.75rem; color:var(--muted); letter-spacing:3px; margin-bottom:2.5rem; }
+
+    .timer-wrap { background:#0a0000; border:1px solid var(--red-dim); border-radius:8px; padding:1.5rem 2.5rem; text-align:center; animation:tpulse 2s ease-in-out infinite; }
+    @keyframes tpulse { 0%,100%{box-shadow:0 0 20px rgba(255,26,26,0.3),0 0 60px rgba(255,26,26,0.1)} 50%{box-shadow:0 0 40px rgba(255,26,26,0.7),0 0 100px rgba(255,26,26,0.3)} }
+    .timer-label { font-size:0.6rem; letter-spacing:4px; color:var(--red); text-transform:uppercase; margin-bottom:0.6rem; }
+    .timer-display { font-family:'Oswald',sans-serif; font-size:clamp(2.5rem,6vw,4.5rem); color:var(--red); letter-spacing:6px; text-shadow:0 0 10px rgba(255,26,26,0.9),0 0 30px rgba(255,26,26,0.6),0 0 60px rgba(255,26,26,0.3); }
+    .timer-note { font-size:0.55rem; color:var(--red-dim); letter-spacing:2px; margin-top:0.6rem; }
+
+    .call-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.97); z-index:20000; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; }
+    .call-overlay.show { display:flex; }
+    .call-ring { width:140px; height:140px; border-radius:50%; background:#1a0000; border:3px solid var(--red); display:flex; align-items:center; justify-content:center; font-size:3.5rem; position:relative; margin-bottom:2rem; animation:rpulse 1s ease-in-out infinite; }
+    @keyframes rpulse { 0%{box-shadow:0 0 0 0 rgba(255,26,26,0.7)} 50%{box-shadow:0 0 0 30px rgba(255,26,26,0)} 100%{box-shadow:0 0 0 0 rgba(255,26,26,0)} }
+    .call-ring::before { content:''; position:absolute; inset:-16px; border-radius:50%; border:2px solid rgba(255,26,26,0.3); animation:rexpand 1s ease-out infinite; }
+    .call-ring::after  { content:''; position:absolute; inset:-32px; border-radius:50%; border:2px solid rgba(255,26,26,0.15); animation:rexpand 1s 0.3s ease-out infinite; }
+    @keyframes rexpand { 0%{transform:scale(0.9);opacity:1} 100%{transform:scale(1.2);opacity:0} }
+    .call-label { font-size:0.65rem; letter-spacing:6px; color:var(--red); text-transform:uppercase; margin-bottom:0.8rem; }
+    .call-name  { font-family:'Oswald',sans-serif; font-size:2.5rem; color:#fff; letter-spacing:3px; margin-bottom:0.5rem; }
+    .call-sub   { font-size:0.65rem; color:var(--muted); letter-spacing:3px; margin-bottom:1.5rem; }
+    .call-connected { font-family:'Oswald',sans-serif; font-size:1rem; color:#00ff7f; letter-spacing:3px; display:none; animation:blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .rick-overlay { display:none; position:fixed; inset:0; background:#000; z-index:30000; flex-direction:column; align-items:center; justify-content:center; }
+    .rick-overlay.show { display:flex; }
+    .rick-overlay iframe { width:min(90vw,800px); height:min(50.625vw,450px); border:none; border-radius:8px; }
+
+    .admin-btn { position:fixed; bottom:16px; left:16px; background:#0a0a0a; border:1px solid #222; color:#333; font-family:'Share Tech Mono',monospace; font-size:0.5rem; letter-spacing:2px; padding:6px 12px; border-radius:4px; cursor:pointer; z-index:8000; transition:all 0.2s; }
+    .admin-btn:hover { border-color:var(--red-dim); color:var(--red); }
+
+    .admin-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:10000; align-items:center; justify-content:center; }
+    .admin-modal.open { display:flex; }
+    .admin-box { background:#0a0a0a; border:1px solid var(--red-dim); border-radius:8px; padding:2.5rem; width:340px; max-width:90vw; box-shadow:0 0 40px rgba(255,26,26,0.2); }
+    .admin-box h2 { font-family:'Oswald',sans-serif; color:var(--red); font-size:1.2rem; letter-spacing:3px; margin-bottom:0.4rem; }
+    .admin-box .sub { font-size:0.6rem; color:var(--muted); letter-spacing:2px; margin-bottom:1.5rem; }
+    .input-wrap { position:relative; margin-bottom:0.8rem; }
+    .admin-input { width:100%; background:#000; border:1px solid #333; color:#fff; font-family:'Share Tech Mono',monospace; font-size:0.8rem; padding:10px 3rem 10px 14px; border-radius:4px; outline:none; letter-spacing:2px; }
+    .admin-input:focus { border-color:var(--red-dim); }
+    .eye-btn { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; padding:0; }
+    .admin-submit { width:100%; background:var(--red-dim); color:#fff; border:none; font-family:'Share Tech Mono',monospace; font-size:0.65rem; letter-spacing:3px; padding:10px; border-radius:4px; cursor:pointer; }
+    .admin-submit:hover { background:var(--red); }
+    .close-btn { float:right; background:none; border:none; color:#555; font-size:1rem; cursor:pointer; }
+    .close-btn:hover { color:#fff; }
+    .admin-msg { font-size:0.6rem; letter-spacing:2px; margin-top:0.5rem; display:none; }
+    .admin-msg.err { color:var(--red); }
+    .admin-msg.ok  { color:#00ff7f; }
+  </style>
+</head>
+<body>
+
+  <p class="hero-eyebrow">⚠ CLASSIFIED DOCUMENTS ⚠</p>
+  <h1 class="hero-title">THE <span>GOLDIEHDD</span> FILES</h1>
+  <p class="hero-sub">SUBJECT: GOLDIEHDD &nbsp;|&nbsp; STATUS: ACTIVE &nbsp;|&nbsp; PLATFORM: TWITCH</p>
+
+  <div class="timer-wrap">
+    <p class="timer-label">⏱ TIME UNTIL EVERYTHING IS REVEALED</p>
+    <div class="timer-display" id="timer">05:00</div>
+    <p class="timer-note" id="timerNote">MIN &nbsp;&nbsp;&nbsp; SEC</p>
+  </div>
+
+  <!-- CALL OVERLAY -->
+  <div class="call-overlay" id="callOverlay">
+    <p class="call-label" id="callLabel">CALLING...</p>
+    <div class="call-ring" id="callRing">📞</div>
+    <p class="call-name">GOLDIEHDD</p>
+    <p class="call-sub" id="callSub">PRIVATE CALL — [REDACTED]</p>
+    <p class="call-connected" id="callConnected">● BUSY</p>
+  </div>
+
+  <!-- HIDDEN AUDIO -->
+  <audio id="callingSound"></audio>
+  <audio id="busySound" loop></audio>
+
+  <!-- RICKROLL -->
+  <div class="rick-overlay" id="rickOverlay">
+    <iframe id="rickFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+
+  <!-- ADMIN -->
+  <button class="admin-btn" onclick="document.getElementById('adminModal').classList.add('open')">[ ADMIN ]</button>
+
+  <div class="admin-modal" id="adminModal">
+    <div class="admin-box">
+      <button class="close-btn" onclick="document.getElementById('adminModal').classList.remove('open')">✕</button>
+      <h2>ADMIN ACCESS</h2>
+      <p class="sub">ENTER PASSWORD TO CONTROL TIMER</p>
+      <div class="input-wrap">
+        <input class="admin-input" type="password" id="adminPass" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')checkPass()"/>
+        <button class="eye-btn" onclick="var i=document.getElementById('adminPass');if(i.type==='password'){i.type='text';this.textContent='🙈';}else{i.type='password';this.textContent='👁';}">👁</button>
+      </div>
+      <button class="admin-submit" onclick="checkPass()">AUTHENTICATE →</button>
+      <p class="admin-msg err" id="adminErr">⚠ ACCESS DENIED — INCORRECT PASSWORD</p>
+      <p class="admin-msg ok"  id="adminOk"></p>
+    </div>
+  </div>
+
+  <script>
+    let end = new Date(Date.now() + 5 * 60 * 1000);
+    let revealed = false;
+    let audioCtx = null;
+    let ringInterval = null;
+    let autoAnswerTO = null;
+    let rickTO = null;
+    let tickInterval = null;
+
+    function resetAll() {
+      revealed = false;
+      stopRing();
+      stopTickTock();
+      if (autoAnswerTO) { clearTimeout(autoAnswerTO); autoAnswerTO = null; }
+      if (rickTO)        { clearTimeout(rickTO);        rickTO = null; }
+      document.getElementById('callOverlay').classList.remove('show');
+      document.getElementById('callConnected').style.display = 'none';
+      document.getElementById('callRing').textContent = '📞';
+      document.getElementById('callLabel').textContent = 'CALLING...';
+      document.getElementById('callSub').textContent = 'PRIVATE CALL — [REDACTED]';
+      document.getElementById('rickOverlay').classList.remove('show');
+      document.getElementById('rickFrame').src = '';
+      document.getElementById('timerNote').innerHTML = 'MIN &nbsp;&nbsp;&nbsp; SEC';
+    }
+
+    function triggerReveal() {
+      if (revealed) return;
+      revealed = true;
+      stopTickTock();
+      document.getElementById('timer').textContent = 'TIME IS UP';
+      document.getElementById('timerNote').textContent = '';
+      document.getElementById('callOverlay').classList.add('show');
+      playRing();
+
+      // Auto answer after 4 seconds
+      autoAnswerTO = setTimeout(function() {
+        stopRing();
+        document.getElementById('callRing').textContent = '📲';
+        document.getElementById('callConnected').style.display = 'block';
+
+        // Rickroll 5 seconds after pickup
+        rickTO = setTimeout(function() {
+          document.getElementById('callOverlay').classList.remove('show');
+          document.getElementById('rickFrame').src = 'https://www.youtube.com/embed/xMHJGd3wwZk?autoplay=1&controls=0&rel=0';
+          document.getElementById('rickOverlay').classList.add('show');
+        }, 5000);
+      }, 4000);
+    }
+
+    let tickActive = false;
+
+    function playTick(high) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const sampleRate = ctx.sampleRate;
+        const len = Math.floor(sampleRate * 0.025);
+        const buf = ctx.createBuffer(1, len, sampleRate);
+        const d = buf.getChannelData(0);
+        // Sharp clock click — transient noise burst
+        for (let i = 0; i < len; i++) {
+          const decay = Math.exp(-i / (sampleRate * 0.004));
+          d[i] = (Math.random() * 2 - 1) * decay * (high ? 1.0 : 0.6);
+        }
+        const src = ctx.createBufferSource();
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = high ? 3200 : 1800;
+        filter.Q.value = 1.5;
+        const g = ctx.createGain();
+        g.gain.value = high ? 0.9 : 0.6;
+        src.buffer = buf;
+        src.connect(filter);
+        filter.connect(g);
+        g.connect(ctx.destination);
+        src.start();
+        src.onended = () => ctx.close();
+      } catch(e) {}
+    }
+
+    function startTickTock() {
+      if (tickActive) return;
+      tickActive = true;
+      // Sync to the actual clock so tick lands on the second
+      const now = Date.now();
+      const msToNextHalf = 500 - (now % 500);
+      let isTick = (now % 1000) < 500;
+      setTimeout(function() {
+        if (!tickActive) return;
+        playTick(isTick);
+        isTick = !isTick;
+        tickInterval = setInterval(() => {
+          if (!tickActive) return;
+          playTick(isTick);
+          isTick = !isTick;
+        }, 500);
+      }, msToNextHalf);
+    }
+
+    function stopTickTock() {
+      tickActive = false;
+      if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+    }
+
+    let callingCtx = null;
+    let callingInt = null;
+    let busyInt = null;
+
+    function playCallingTone() {
+      // Classic phone ringing: 2s on, 4s off pattern
+      function ring() {
+        if (!callingCtx) return;
+        const now = callingCtx.currentTime;
+        [0, 0.5].forEach(offset => {
+          const o1 = callingCtx.createOscillator();
+          const o2 = callingCtx.createOscillator();
+          const g = callingCtx.createGain();
+          o1.type = 'sine'; o2.type = 'sine';
+          o1.frequency.value = 480; o2.frequency.value = 440;
+          o1.connect(g); o2.connect(g); g.connect(callingCtx.destination);
+          g.gain.setValueAtTime(0, now + offset);
+          g.gain.linearRampToValueAtTime(0.3, now + offset + 0.02);
+          g.gain.linearRampToValueAtTime(0.3, now + offset + 0.38);
+          g.gain.linearRampToValueAtTime(0, now + offset + 0.4);
+          o1.start(now + offset); o2.start(now + offset);
+          o1.stop(now + offset + 0.41); o2.stop(now + offset + 0.41);
+        });
+      }
+      callingCtx = new (window.AudioContext || window.webkitAudioContext)();
+      ring();
+      callingInt = setInterval(ring, 3000);
+    }
+
+    function stopCallingTone() {
+      if (callingInt) { clearInterval(callingInt); callingInt = null; }
+      if (callingCtx) { try { callingCtx.close(); } catch(e){} callingCtx = null; }
+    }
+
+    function playBusyTone() {
+      let busyCtx = new (window.AudioContext || window.webkitAudioContext)();
+      function beep() {
+        if (!busyCtx) return;
+        const now = busyCtx.currentTime;
+        const o = busyCtx.createOscillator();
+        const g = busyCtx.createGain();
+        o.type = 'sine'; o.frequency.value = 480;
+        o.connect(g); g.connect(busyCtx.destination);
+        g.gain.setValueAtTime(0.3, now);
+        g.gain.linearRampToValueAtTime(0, now + 0.45);
+        o.start(now); o.stop(now + 0.46);
+      }
+      beep();
+      busyInt = setInterval(beep, 500);
+      // store ctx for cleanup
+      callingCtx = busyCtx;
+    }
+
+    function playRing() {
+      playCallingTone();
+      setTimeout(function() {
+        stopCallingTone();
+        document.getElementById('callLabel').textContent = 'BUSY';
+        document.getElementById('callSub').textContent = 'LINE BUSY — [REDACTED]';
+        document.getElementById('callRing').textContent = '📵';
+        playBusyTone();
+      }, 2000);
+    }
+
+    function playPickupSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        // iPhone "connect" chime - two rising tones
+        [[1047, 0], [1319, 0.12], [1568, 0.24]].forEach(([f, t]) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'sine';
+          o.frequency.value = f;
+          o.connect(g); g.connect(ctx.destination);
+          g.gain.setValueAtTime(0, now + t);
+          g.gain.linearRampToValueAtTime(0.3, now + t + 0.02);
+          g.gain.linearRampToValueAtTime(0, now + t + 0.18);
+          o.start(now + t);
+          o.stop(now + t + 0.2);
+        });
+        setTimeout(() => ctx.close(), 1000);
+      } catch(e) {}
+    }
+
+    function stopRing() {
+      if (ringInterval) { clearInterval(ringInterval); ringInterval = null; }
+      if (audioCtx)     { try { audioCtx.close(); } catch(e){} audioCtx = null; }
+      if (busyInt)      { clearInterval(busyInt); busyInt = null; }
+      stopCallingTone();
+    }
+
+    function update() {
+      if (revealed) return;
+      const diff = end - Date.now();
+      if (diff <= 0) { triggerReveal(); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      if (d > 0) {
+        document.getElementById('timer').textContent = String(d).padStart(2,'0')+':'+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+        document.getElementById('timerNote').innerHTML = 'DAYS &nbsp;&nbsp;&nbsp; HRS &nbsp;&nbsp;&nbsp; MIN &nbsp;&nbsp;&nbsp; SEC';
+      } else if (h > 0) {
+        document.getElementById('timer').textContent = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+        document.getElementById('timerNote').innerHTML = 'HRS &nbsp;&nbsp;&nbsp; MIN &nbsp;&nbsp;&nbsp; SEC';
+      } else {
+        document.getElementById('timer').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+        document.getElementById('timerNote').innerHTML = 'MIN &nbsp;&nbsp;&nbsp; SEC';
+        // Start tick tock in last 5 seconds
+        if (m === 0 && s <= 5 && s > 0 && !tickActive) {
+          startTickTock();
+        }
+      }
+    }
+
+    function checkPass() {
+      const val = document.getElementById('adminPass').value;
+      const err = document.getElementById('adminErr');
+      const ok  = document.getElementById('adminOk');
+      err.style.display = 'none';
+      ok.style.display  = 'none';
+      document.getElementById('adminPass').value = '';
+
+      if (val === 'general') {
+        resetAll();
+        end = new Date(Date.now() + 5 * 60 * 1000);
+        ok.textContent = '✓ TIMER RESET TO 5 MINUTES';
+        ok.style.display = 'block';
+        setTimeout(() => { document.getElementById('adminModal').classList.remove('open'); ok.style.display='none'; }, 1500);
+      } else if (val === 'general1') {
+        resetAll();
+        end = new Date(Date.now() + 10 * 1000);
+        ok.textContent = '✓ TIMER SET TO 10 SECONDS';
+        ok.style.display = 'block';
+        setTimeout(() => { document.getElementById('adminModal').classList.remove('open'); ok.style.display='none'; }, 1500);
+      } else {
+        err.style.display = 'block';
+      }
+    }
+
+    update();
+    setInterval(update, 1000);
+  </script>
+
+</body>
+</html>
