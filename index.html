@@ -1,36 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cookie</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #111;
-      font-family: Arial, sans-serif;
-    }
-    button {
-      padding: 20px 40px;
-      font-size: 20px;
-      cursor: pointer;
-      border: none;
-      background: #ff3c2f;
-      color: #000;
-      border-radius: 8px;
-    }
-    button:hover {
-      background: #ff5a4f;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicken Clicker - Click to Lay Egg!</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+
+        #game {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            cursor: pointer;
+        }
+
+        #chicken {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            transition: transform 0.1s;
+        }
+
+        #chicken:active {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+
+        .egg {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background: url('https://i.imgur.com/0Z8zZ8Z.png') no-repeat center/contain; /* fallback egg */
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+            animation: layEgg 2.5s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes layEgg {
+            0%   { bottom: 80px; left: 170px; transform: scale(0.2) rotate(-20deg); opacity: 0; }
+            30%  { opacity: 1; }
+            70%  { transform: scale(1) rotate(0deg); }
+            100% { bottom: -100px; transform: scale(1) rotate(15deg); opacity: 0; }
+        }
+
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            text-shadow: 0 0 10px #000;
+            z-index: 10;
+        }
+    </style>
 </head>
 <body>
-  <button onclick="window.location.href='https://www.youtube.com/watch?v=xMHJGd3wwZk'">
-    Click for a cookie
-  </button>
+
+<div id="game">
+    <div id="score">Eggs laid: <span id="count">0</span></div>
+    
+    <!-- Your chicken image -->
+    <img id="chicken" src="vxUGp" alt="Chicken" width="220">
+</div>
+
+<script>
+    const chicken = document.getElementById('chicken');
+    const gameArea = document.getElementById('game');
+    let eggCount = 0;
+    const countEl = document.getElementById('count');
+
+    // Use your uploaded egg image (the first one you sent)
+    const eggSrc = "t2e8n";
+
+    // Simple "polb" / cluck sound using Web Audio API (sounds like a funny "polb")
+    function playPolb() {
+        const audio = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(280, audio.currentTime);
+        
+        gain.gain.setValueAtTime(1, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
+        
+        const filter = audio.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, audio.currentTime);
+        
+        osc.connect(filter).connect(gain).connect(audio.destination);
+        osc.start();
+        osc.stop(audio.currentTime + 0.5);
+        
+        // Extra "b" sound
+        setTimeout(() => {
+            const osc2 = audio.createOscillator();
+            osc2.type = 'square';
+            osc2.frequency.setValueAtTime(120, audio.currentTime);
+            const g2 = audio.createGain();
+            g2.gain.value = 0.6;
+            g2.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.25);
+            osc2.connect(g2).connect(audio.destination);
+            osc2.start();
+            osc2.stop(audio.currentTime + 0.3);
+        }, 80);
+    }
+
+    chicken.addEventListener('click', (e) => {
+        // Play funny "polb" sound
+        playPolb();
+
+        // Increment egg counter
+        eggCount++;
+        countEl.textContent = eggCount;
+
+        // Create a new egg
+        const egg = document.createElement('div');
+        egg.className = 'egg';
+        egg.style.backgroundImage = `url('${eggSrc}')`;
+        
+        // Random slight horizontal offset so eggs don't stack perfectly
+        const offset = Math.random() * 60 - 30;
+        egg.style.left = `calc(170px + ${offset}px)`;
+        
+        gameArea.appendChild(egg);
+
+        // Remove egg after animation finishes
+        setTimeout(() => {
+            egg.remove();
+        }, 3000);
+    });
+
+    // Bonus: press any key also lays an egg (for fun)
+    document.addEventListener('keypress', () => {
+        chicken.click();
+    });
+</script>
+
 </body>
 </html>
