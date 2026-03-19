@@ -3,670 +3,284 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chicken Clicker</title>
+<title>DO NOT PRESS</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-  :root {
-    --grass: #5D9C2F;
-    --dirt: #8B5E3C;
-    --sky: #87ceeb;
-    --stone: #7a7a7a;
-    --yellow: #F5C518;
-    --red: #C0392B;
-    --white: #F0EDE0;
-    --shadow: #1a0f00;
-    --panel-bg: #1e1208ee;
-    --panel-border: #5D9C2F;
-    --egg-gold: #f7d94c;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--sky);
-    font-family: 'Press Start 2P', monospace;
-    color: var(--white);
-    min-height: 100vh;
-    overflow-x: hidden;
-    image-rendering: pixelated;
+  :root {
+    --red: #ff2222;
+    --dark: #0a0a0a;
+    --glow: #ff222288;
   }
 
+  body {
+    min-height: 100vh;
+    background: var(--dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: default;
+    font-family: 'Barlow', sans-serif;
+  }
+
+  /* Animated grid background */
   body::before {
     content: '';
     position: fixed;
+    inset: -50%;
+    background-image:
+      linear-gradient(rgba(255,34,34,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,34,34,0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridscroll 8s linear infinite;
+    z-index: 0;
+  }
+  @keyframes gridscroll {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(48px, 48px); }
+  }
+
+  /* Vignette */
+  body::after {
+    content: '';
+    position: fixed;
     inset: 0;
-    background: linear-gradient(180deg,
-      #5bb8e0 0%, #87ceeb 54%,
-      #5D9C2F 54%, #5D9C2F 63%,
-      #7a5230 63%, #7a5230 100%);
-    z-index: -2;
-  }
-
-  .sun {
-    position: fixed;
-    top: 28px; right: 70px;
-    width: 40px; height: 40px;
-    background: #FFEF00;
-    z-index: 0;
-    box-shadow: 0 0 0 6px #FFEF0055, 0 0 0 12px #FFEF0022;
-    animation: sunpulse 3s ease-in-out infinite;
-  }
-  @keyframes sunpulse {
-    0%,100% { box-shadow: 0 0 0 6px #FFEF0055, 0 0 0 12px #FFEF0022; }
-    50%      { box-shadow: 0 0 0 10px #FFEF0077, 0 0 0 20px #FFEF0033; }
-  }
-
-  .cloud {
-    position: fixed;
-    background: #fff;
-    z-index: 0;
-    animation: drift linear infinite;
-    pointer-events: none;
-  }
-  @keyframes drift {
-    from { transform: translateX(-260px); }
-    to   { transform: translateX(calc(100vw + 260px)); }
-  }
-
-  .ground-decor {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 60px;
+    background: radial-gradient(ellipse at center, transparent 30%, #0a0a0a 90%);
     z-index: 0;
     pointer-events: none;
-    display: flex;
-  }
-  .grass-block {
-    flex: 1;
-    height: 60px;
-    background: linear-gradient(180deg, #5D9C2F 0%, #5D9C2F 30%, #7a5230 30%);
-    border-right: 1px solid #4a7c22;
   }
 
-  .game-wrap {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 24px 20px 80px;
-    gap: 22px;
+  .scene {
     position: relative;
     z-index: 1;
-  }
-
-  .left-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    min-width: 210px;
+    gap: 40px;
   }
 
-  .pixel-panel {
-    background: var(--panel-bg);
-    border: 4px solid var(--panel-border);
-    box-shadow: 4px 4px 0 var(--shadow);
-    padding: 14px 16px;
-    width: 100%;
+  .warning-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(13px, 2vw, 18px);
+    letter-spacing: 0.35em;
+    color: #ff2222aa;
+    text-transform: uppercase;
+    animation: warningpulse 2s ease-in-out infinite;
+    user-select: none;
+  }
+  @keyframes warningpulse {
+    0%,100% { opacity: 0.5; }
+    50%      { opacity: 1; }
   }
 
-  .title-box { text-align: center; border-color: #c0392b; }
-  .title-box h1 {
-    font-size: 11px;
-    color: var(--yellow);
-    text-shadow: 2px 2px 0 var(--shadow);
-    line-height: 2;
-  }
-
-  .egg-counter { border-color: var(--egg-gold); text-align: center; }
-  .egg-count-num {
-    font-size: 20px;
-    color: var(--egg-gold);
-    text-shadow: 2px 2px 0 var(--shadow);
-    display: block;
-    margin-bottom: 8px;
-  }
-  .egg-counter label { font-size: 6px; color: #ccc; display: block; }
-  .epm-label { font-size: 6px; color: #aaa; margin-top: 6px; display: block; }
-
-  .progress-area { border-color: var(--stone); }
-  .progress-label { font-size: 5px; color: #bbb; margin-bottom: 7px; display: block; }
-  .progress-bar-wrap { background: #111; border: 2px solid #333; height: 10px; overflow: hidden; }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--grass), var(--yellow));
-    transition: width 0.3s;
-  }
-
-  .chicken-arena {
-    border-color: var(--grass);
+  /* THE BUTTON */
+  .btn-wrap {
+    position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 14px;
-    padding: 20px 16px;
+    justify-content: center;
   }
 
-  .chicken-btn {
-    background: none;
+  /* Outer ring spin */
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    animation: ringspin linear infinite;
+  }
+  .ring-1 {
+    width: 240px; height: 240px;
+    border-top-color: #ff2222;
+    border-right-color: #ff222244;
+    animation-duration: 3s;
+  }
+  .ring-2 {
+    width: 210px; height: 210px;
+    border-bottom-color: #ff2222;
+    border-left-color: #ff222244;
+    animation-duration: 2.2s;
+    animation-direction: reverse;
+  }
+  .ring-3 {
+    width: 180px; height: 180px;
+    border-top-color: #ff222266;
+    border-right-color: #ff2222cc;
+    animation-duration: 4s;
+  }
+  @keyframes ringspin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* Glowing button */
+  .big-btn {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 35%, #ff5555, #cc0000 55%, #6e0000);
     border: none;
     cursor: pointer;
-    padding: 4px;
+    box-shadow:
+      0 0 30px #ff222266,
+      0 0 60px #ff222233,
+      inset 0 4px 12px rgba(255,160,160,0.25),
+      inset 0 -4px 12px rgba(0,0,0,0.5);
+    transition: transform 0.1s, box-shadow 0.15s;
+    animation: breathe 2.5s ease-in-out infinite;
     outline: none;
-  }
-  .chicken-btn:active { transform: scale(0.9); }
-
-  #chickenSvg {
-    width: 120px;
-    height: 120px;
-    image-rendering: pixelated;
-    display: block;
-    animation: idleBob 1.1s steps(2) infinite;
-  }
-  @keyframes idleBob {
-    0%,100% { transform: translateY(0); }
-    50%     { transform: translateY(-4px); }
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .chicken-btn.laying #chickenSvg {
-    animation: layAnim 0.35s steps(1) forwards;
-  }
-  @keyframes layAnim {
-    0%   { transform: translateY(0) scaleY(1); }
-    25%  { transform: translateY(7px) scaleY(0.8); }
-    60%  { transform: translateY(-9px) scaleY(1.1); }
-    100% { transform: translateY(0) scaleY(1); }
+  @keyframes breathe {
+    0%,100% {
+      box-shadow: 0 0 30px #ff222266, 0 0 60px #ff222233,
+                  inset 0 4px 12px rgba(255,160,160,0.25), inset 0 -4px 12px rgba(0,0,0,0.5);
+    }
+    50% {
+      box-shadow: 0 0 50px #ff2222aa, 0 0 100px #ff222255,
+                  inset 0 4px 12px rgba(255,160,160,0.25), inset 0 -4px 12px rgba(0,0,0,0.5);
+    }
   }
 
-  .click-hint {
-    font-size: 6px;
-    color: #9f9;
-    text-shadow: 1px 1px 0 #000;
-    animation: blink 1.3s step-start infinite;
+  .big-btn::before {
+    content: '';
+    position: absolute;
+    top: 14px; left: 22px;
+    width: 46px; height: 22px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 50%;
+    transform: rotate(-35deg);
+    filter: blur(4px);
   }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-  /* SHOP */
-  .shop-panel {
-    background: var(--panel-bg);
-    border: 4px solid var(--stone);
-    box-shadow: 4px 4px 0 var(--shadow);
-    width: 265px;
+  .big-btn:hover {
+    transform: scale(1.06);
+    box-shadow:
+      0 0 60px #ff2222aa,
+      0 0 120px #ff222255,
+      inset 0 4px 12px rgba(255,160,160,0.3),
+      inset 0 -4px 12px rgba(0,0,0,0.5);
+    animation: none;
+  }
+
+  .big-btn:active {
+    transform: scale(0.94);
+    box-shadow:
+      0 0 20px #ff222288,
+      inset 0 6px 16px rgba(0,0,0,0.6),
+      inset 0 -2px 8px rgba(255,100,100,0.15);
+  }
+
+  /* Label beneath */
+  .label-wrap {
     display: flex;
     flex-direction: column;
-    max-height: 88vh;
-    overflow: hidden;
-  }
-  .shop-title {
-    background: var(--stone);
-    padding: 11px 14px;
-    font-size: 8px;
-    color: var(--white);
-    text-shadow: 1px 1px 0 #000;
-    text-align: center;
-    border-bottom: 4px solid #555;
-  }
-  .shop-items {
-    overflow-y: auto;
-    flex: 1;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-  }
-  .shop-items::-webkit-scrollbar { width: 8px; }
-  .shop-items::-webkit-scrollbar-track { background: #111; }
-  .shop-items::-webkit-scrollbar-thumb { background: var(--grass); }
-
-  .shop-item {
-    background: #130d04;
-    border: 3px solid #444;
-    padding: 9px 11px;
-    cursor: pointer;
-    display: flex;
     align-items: center;
     gap: 10px;
-    position: relative;
-    transition: border-color 0.1s, background 0.1s;
   }
-  .shop-item:hover:not(.locked) { border-color: var(--yellow); background: #201508; }
-  .shop-item.locked { opacity: 0.38; cursor: not-allowed; }
-  .shop-item.owned-item { border-color: var(--grass); }
 
-  .item-icon { width: 28px; height: 28px; flex-shrink: 0; image-rendering: pixelated; }
-  .item-info { flex: 1; }
-  .item-name { font-size: 6px; color: var(--white); display: block; margin-bottom: 4px; text-shadow: 1px 1px 0 #000; }
-  .item-cost { font-size: 5px; color: var(--egg-gold); display: block; margin-bottom: 3px; }
-  .item-desc { font-size: 5px; color: #999; display: block; line-height: 1.7; }
-  .item-owned-badge { position: absolute; top: 5px; right: 7px; font-size: 5px; color: #9f9; }
+  .dont {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 8vw, 72px);
+    color: #fff;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 30px #ff2222aa;
+    line-height: 1;
+    user-select: none;
+  }
 
-  .float-txt {
+  .press-it {
+    font-family: 'Barlow', sans-serif;
+    font-size: clamp(11px, 1.8vw, 14px);
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    color: #ff222299;
+    text-transform: uppercase;
+    user-select: none;
+  }
+
+  /* Particle sparks */
+  .spark {
     position: fixed;
     pointer-events: none;
-    z-index: 200;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 12px;
-    color: var(--egg-gold);
-    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
-    animation: floatUp 0.85s ease-out forwards;
+    z-index: 10;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #ff4444;
+    animation: sparkfly 0.7s ease-out forwards;
   }
-  @keyframes floatUp {
-    0%   { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-70px); }
+  @keyframes sparkfly {
+    0%   { opacity: 1; transform: translate(0,0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.2); }
   }
 
-  #eggCanvas {
+  /* Screen flash on click */
+  .flash {
     position: fixed;
     inset: 0;
+    background: #ff2222;
+    opacity: 0;
     pointer-events: none;
-    z-index: 100;
+    z-index: 999;
+    animation: flashout 0.4s ease-out forwards;
   }
-
-  @media (max-width: 680px) {
-    .game-wrap { flex-direction: column; align-items: center; padding-bottom: 100px; }
-    .shop-panel { width: 100%; max-width: 360px; max-height: 300px; }
-    .left-panel { width: 100%; max-width: 360px; }
+  @keyframes flashout {
+    0%   { opacity: 0.35; }
+    100% { opacity: 0; }
   }
 </style>
 </head>
 <body>
 
-<canvas id="eggCanvas"></canvas>
-<div class="sun"></div>
-<div class="ground-decor" id="groundDecor"></div>
+<div class="scene">
+  <span class="warning-text">WARNING &mdash; DO NOT PRESS</span>
 
-<!-- Hidden SVG icon defs -->
-<svg width="0" height="0" style="position:absolute;overflow:hidden">
-  <defs>
-    <symbol id="ico-grain" viewBox="0 0 8 8">
-      <rect x="2" y="5" width="2" height="2" fill="#c8a030"/>
-      <rect x="4" y="4" width="2" height="2" fill="#e0b840"/>
-      <rect x="1" y="3" width="2" height="2" fill="#a07820"/>
-      <rect x="5" y="3" width="2" height="2" fill="#a07820"/>
-      <rect x="3" y="2" width="2" height="2" fill="#c8a030"/>
-    </symbol>
-    <symbol id="ico-nest" viewBox="0 0 8 8">
-      <rect x="0" y="5" width="8" height="3" fill="#7a5230"/>
-      <rect x="1" y="4" width="6" height="2" fill="#a07040"/>
-      <rect x="2" y="3" width="4" height="2" fill="#c89060"/>
-      <rect x="3" y="2" width="2" height="3" fill="#f7d94c"/>
-      <rect x="2" y="3" width="1" height="1" fill="#e0c030"/>
-    </symbol>
-    <symbol id="ico-rooster" viewBox="0 0 8 8">
-      <rect x="2" y="4" width="4" height="3" fill="#f0ede0"/>
-      <rect x="4" y="3" width="3" height="3" fill="#f0ede0"/>
-      <rect x="3" y="1" width="2" height="2" fill="#c0392b"/>
-      <rect x="6" y="4" width="2" height="1" fill="#e09a00"/>
-      <rect x="5" y="5" width="2" height="1" fill="#c0392b"/>
-      <rect x="3" y="7" width="1" height="1" fill="#e09a00"/>
-      <rect x="5" y="7" width="1" height="1" fill="#e09a00"/>
-      <rect x="5" y="3" width="1" height="1" fill="#111"/>
-    </symbol>
-    <symbol id="ico-farm" viewBox="0 0 8 8">
-      <rect x="0" y="4" width="8" height="4" fill="#c89060"/>
-      <rect x="1" y="2" width="6" height="4" fill="#e8c080"/>
-      <rect x="1" y="1" width="6" height="2" fill="#c0392b"/>
-      <rect x="0" y="2" width="1" height="1" fill="#c0392b"/>
-      <rect x="7" y="2" width="1" height="1" fill="#c0392b"/>
-      <rect x="3" y="4" width="2" height="4" fill="#8B5E3C"/>
-      <rect x="1" y="3" width="2" height="2" fill="#d4a840" opacity="0.6"/>
-    </symbol>
-    <symbol id="ico-gear" viewBox="0 0 8 8">
-      <rect x="3" y="0" width="2" height="2" fill="#aaa"/>
-      <rect x="3" y="6" width="2" height="2" fill="#aaa"/>
-      <rect x="0" y="3" width="2" height="2" fill="#aaa"/>
-      <rect x="6" y="3" width="2" height="2" fill="#aaa"/>
-      <rect x="1" y="1" width="2" height="2" fill="#888"/>
-      <rect x="5" y="1" width="2" height="2" fill="#888"/>
-      <rect x="1" y="5" width="2" height="2" fill="#888"/>
-      <rect x="5" y="5" width="2" height="2" fill="#888"/>
-      <rect x="2" y="2" width="4" height="4" fill="#ccc"/>
-      <rect x="3" y="3" width="2" height="2" fill="#555"/>
-    </symbol>
-    <symbol id="ico-magic" viewBox="0 0 8 8">
-      <rect x="3" y="0" width="2" height="8" fill="#a040f0"/>
-      <rect x="0" y="3" width="8" height="2" fill="#a040f0"/>
-      <rect x="1" y="1" width="2" height="2" fill="#d080ff"/>
-      <rect x="5" y="1" width="2" height="2" fill="#d080ff"/>
-      <rect x="1" y="5" width="2" height="2" fill="#d080ff"/>
-      <rect x="5" y="5" width="2" height="2" fill="#d080ff"/>
-      <rect x="3" y="3" width="2" height="2" fill="#fff"/>
-    </symbol>
-    <symbol id="ico-dragon" viewBox="0 0 8 8">
-      <rect x="2" y="3" width="4" height="4" fill="#2ecc71"/>
-      <rect x="1" y="4" width="6" height="2" fill="#27ae60"/>
-      <rect x="3" y="2" width="3" height="2" fill="#2ecc71"/>
-      <rect x="0" y="1" width="3" height="3" fill="#27ae60"/>
-      <rect x="5" y="1" width="3" height="3" fill="#27ae60"/>
-      <rect x="5" y="4" width="1" height="1" fill="#111"/>
-      <rect x="5" y="3" width="2" height="1" fill="#f39c12"/>
-      <rect x="3" y="7" width="1" height="1" fill="#27ae60"/>
-      <rect x="5" y="7" width="1" height="1" fill="#27ae60"/>
-    </symbol>
-    <symbol id="ico-portal" viewBox="0 0 8 8">
-      <rect x="1" y="0" width="6" height="8" fill="#1a0a40"/>
-      <rect x="0" y="1" width="8" height="6" fill="#1a0a40"/>
-      <rect x="2" y="1" width="4" height="6" fill="#5533cc"/>
-      <rect x="1" y="2" width="6" height="4" fill="#7755ee"/>
-      <rect x="3" y="3" width="2" height="2" fill="#fff"/>
-      <rect x="2" y="2" width="1" height="1" fill="#aa88ff"/>
-      <rect x="5" y="2" width="1" height="1" fill="#aa88ff"/>
-      <rect x="2" y="5" width="1" height="1" fill="#aa88ff"/>
-      <rect x="5" y="5" width="1" height="1" fill="#aa88ff"/>
-    </symbol>
-  </defs>
-</svg>
-
-<div class="game-wrap">
-
-  <!-- LEFT PANEL -->
-  <div class="left-panel">
-
-    <div class="pixel-panel title-box">
-      <h1>CHICKEN<br>CLICKER</h1>
-    </div>
-
-    <div class="pixel-panel egg-counter">
-      <span class="egg-count-num" id="eggCount">0</span>
-      <label>EGGS LAID</label>
-      <span class="epm-label" id="epmLabel">0.0 eggs / sec</span>
-    </div>
-
-    <div class="pixel-panel progress-area">
-      <span class="progress-label" id="progressLabel">NEXT MILESTONE: 10 EGGS</span>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
-      </div>
-    </div>
-
-    <div class="pixel-panel chicken-arena">
-      <button class="chicken-btn" id="chickenBtn">
-        <svg id="chickenSvg" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-          <!-- Tail feathers -->
-          <rect x="1" y="6" width="2" height="2" fill="#d4d0bc"/>
-          <rect x="2" y="5" width="2" height="2" fill="#bcb8a4"/>
-          <!-- Body -->
-          <rect x="3" y="7" width="8" height="6" fill="#f0ede0"/>
-          <rect x="2" y="8" width="10" height="4" fill="#f0ede0"/>
-          <!-- Wing -->
-          <rect x="4" y="8" width="5" height="3" fill="#d8d4c0"/>
-          <rect x="4" y="10" width="5" height="1" fill="#c8c4b0"/>
-          <!-- Neck -->
-          <rect x="9" y="6" width="3" height="3" fill="#f0ede0"/>
-          <!-- Head -->
-          <rect x="8" y="3" width="5" height="5" fill="#f0ede0"/>
-          <!-- Comb -->
-          <rect x="9" y="1" width="2" height="2" fill="#c0392b"/>
-          <rect x="11" y="2" width="1" height="1" fill="#c0392b"/>
-          <rect x="8" y="2" width="1" height="1" fill="#c0392b"/>
-          <!-- Eye -->
-          <rect x="11" y="5" width="1" height="1" fill="#111"/>
-          <!-- Beak upper -->
-          <rect x="13" y="5" width="2" height="1" fill="#e09a00"/>
-          <!-- Beak lower -->
-          <rect x="13" y="6" width="2" height="1" fill="#c07800"/>
-          <!-- Wattle -->
-          <rect x="12" y="7" width="2" height="2" fill="#c0392b"/>
-          <!-- Legs -->
-          <rect x="5"  y="13" width="2" height="2" fill="#e09a00"/>
-          <rect x="9"  y="13" width="2" height="2" fill="#e09a00"/>
-          <!-- Feet -->
-          <rect x="4"  y="14" width="4" height="1" fill="#e09a00"/>
-          <rect x="8"  y="14" width="4" height="1" fill="#e09a00"/>
-          <rect x="3"  y="15" width="2" height="1" fill="#e09a00"/>
-          <rect x="11" y="15" width="2" height="1" fill="#e09a00"/>
-        </svg>
-      </button>
-      <span class="click-hint">CLICK TO LAY!</span>
-    </div>
-
+  <div class="btn-wrap">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <a href="https://www.youtube.com/watch?v=xMHJGd3wwZk" target="_blank" rel="noopener" id="bigBtn" class="big-btn"></a>
   </div>
 
-  <!-- SHOP -->
-  <div class="shop-panel">
-    <div class="shop-title">COOP UPGRADES</div>
-    <div class="shop-items" id="shopItems"></div>
+  <div class="label-wrap">
+    <div class="dont">DO NOT PRESS</div>
+    <div class="press-it">seriously. don't.</div>
   </div>
-
 </div>
 
 <script>
-// ========================
-// DATA
-// ========================
-const UPGRADES = [
-  { id:'grain',   name:'GRAIN BUCKET',    icon:'ico-grain',   baseCost:10,    epm:0.1,  desc:'+0.1 eggs/sec' },
-  { id:'nest',    name:'NEST BOX',        icon:'ico-nest',    baseCost:50,    epm:0.5,  desc:'+0.5 eggs/sec' },
-  { id:'rooster', name:'ROOSTER',         icon:'ico-rooster', baseCost:150,   epm:1.5,  desc:'+1.5 eggs/sec' },
-  { id:'farm',    name:'CHICKEN FARM',    icon:'ico-farm',    baseCost:500,   epm:5,    desc:'+5 eggs/sec' },
-  { id:'gear',    name:'AUTO-LAYER 3000', icon:'ico-gear',    baseCost:1500,  epm:15,   desc:'+15 eggs/sec' },
-  { id:'magic',   name:'ENCHANTED FEED',  icon:'ico-magic',   baseCost:5000,  epm:50,   desc:'+50 eggs/sec' },
-  { id:'dragon',  name:'DRAGON EGG MODE', icon:'ico-dragon',  baseCost:15000, epm:150,  desc:'+150 eggs/sec' },
-  { id:'portal',  name:'EGG DIMENSION',   icon:'ico-portal',  baseCost:50000, epm:500,  desc:'+500 eggs/sec' },
-];
+const btn = document.getElementById('bigBtn');
 
-const MILESTONES = [10, 50, 150, 500, 1500, 5000, 15000, 50000, 200000];
+btn.addEventListener('click', function(e) {
+  // Flash
+  const flash = document.createElement('div');
+  flash.className = 'flash';
+  document.body.appendChild(flash);
+  flash.addEventListener('animationend', () => flash.remove());
 
-let eggs = 0;
-let totalEggs = 0;
-let eggsPerSec = 0;
-let costs = {};
-let owned = {};
-UPGRADES.forEach(u => { costs[u.id] = u.baseCost; owned[u.id] = 0; });
-
-// ========================
-// SCENERY
-// ========================
-// Ground blocks
-(function() {
-  const g = document.getElementById('groundDecor');
-  for (let i = 0; i < 40; i++) {
-    const b = document.createElement('div');
-    b.className = 'grass-block';
-    g.appendChild(b);
-  }
-})();
-
-// Clouds
-function makeCloud(delayS, topPx, durS) {
-  const el = document.createElement('div');
-  el.className = 'cloud';
-  const w = 60 + Math.random() * 80;
-  const h = 18 + Math.random() * 12;
-  el.style.cssText = `
-    width:${w}px;height:${h}px;top:${topPx}px;
-    animation-duration:${durS}s;animation-delay:${delayS}s;
-    box-shadow:${w*0.3}px -${h*0.5}px 0 ${h*0.4}px #fff,
-               ${w*0.6}px -${h*0.25}px 0 ${h*0.25}px #fff;
-  `;
-  document.body.appendChild(el);
-}
-for (let i = 0; i < 5; i++) {
-  makeCloud(-(Math.random() * 30), 25 + Math.random() * 120, 28 + Math.random() * 28);
-}
-
-// ========================
-// CANVAS PARTICLES (pixel eggs)
-// ========================
-const canvas = document.getElementById('eggCanvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-function spawnEgg(x, y) {
-  for (let i = 0; i < 3; i++) {
-    particles.push({
-      x: x + (Math.random() - 0.5) * 24,
-      y,
-      vx: (Math.random() - 0.5) * 2.5,
-      vy: -3.5 - Math.random() * 2.5,
-      life: 1,
-      decay: 0.028 + Math.random() * 0.012,
-      size: 6 + Math.random() * 5,
-    });
-  }
-}
-
-function drawPixelEgg(p) {
-  const s = p.size;
-  ctx.save();
-  ctx.globalAlpha = p.life;
-  ctx.translate(Math.round(p.x), Math.round(p.y));
-  ctx.fillStyle = '#f7d94c';
-  ctx.fillRect(-Math.round(s*0.38), -Math.round(s*0.6), Math.round(s*0.76), Math.round(s*1.15));
-  ctx.fillRect(-Math.round(s*0.5),  -Math.round(s*0.22), Math.round(s), Math.round(s*0.58));
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.fillRect(-Math.round(s*0.16), -Math.round(s*0.46), Math.round(s*0.16), Math.round(s*0.28));
-  ctx.restore();
-}
-
-function tickParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles = particles.filter(p => p.life > 0);
-  for (const p of particles) {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vy += 0.13;
-    p.life -= p.decay;
-    drawPixelEgg(p);
-  }
-  requestAnimationFrame(tickParticles);
-}
-tickParticles();
-
-// ========================
-// FLOAT TEXT
-// ========================
-function spawnFloatText(x, y, text) {
-  const el = document.createElement('div');
-  el.className = 'float-txt';
-  el.textContent = text;
-  el.style.left = (x - 12) + 'px';
-  el.style.top  = (y - 10) + 'px';
-  document.body.appendChild(el);
-  el.addEventListener('animationend', () => el.remove());
-}
-
-// ========================
-// HELPERS
-// ========================
-function fmt(n) {
-  if (n >= 1e9) return (n/1e9).toFixed(2)+'B';
-  if (n >= 1e6) return (n/1e6).toFixed(2)+'M';
-  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
-  return Math.floor(n).toString();
-}
-
-// ========================
-// UI
-// ========================
-function updateUI() {
-  document.getElementById('eggCount').textContent = fmt(eggs);
-  document.getElementById('epmLabel').textContent = eggsPerSec.toFixed(1) + ' eggs / sec';
-
-  let prev = 0, next = MILESTONES[MILESTONES.length - 1];
-  for (let i = 0; i < MILESTONES.length; i++) {
-    if (totalEggs < MILESTONES[i]) { next = MILESTONES[i]; prev = i > 0 ? MILESTONES[i-1] : 0; break; }
-    prev = MILESTONES[i];
-  }
-  const done = totalEggs >= MILESTONES[MILESTONES.length - 1];
-  const pct  = done ? 100 : Math.min(100, ((totalEggs - prev) / (next - prev)) * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent =
-    done ? 'MAX LEVEL REACHED' : 'NEXT: ' + fmt(next) + ' EGGS';
-
-  renderShop();
-}
-
-function renderShop() {
-  const container = document.getElementById('shopItems');
-  container.innerHTML = '';
-  for (const u of UPGRADES) {
-    const cost = costs[u.id];
-    const canAfford = eggs >= cost;
-    const item = document.createElement('div');
-    item.className = 'shop-item' +
-      (canAfford ? '' : ' locked') +
-      (owned[u.id] > 0 ? ' owned-item' : '');
-
-    item.innerHTML = `
-      <svg class="item-icon" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-        <use href="#${u.icon}"/>
-      </svg>
-      <div class="item-info">
-        <span class="item-name">${u.name}</span>
-        <span class="item-cost">${fmt(cost)} EGGS</span>
-        <span class="item-desc">${u.desc}</span>
-      </div>
-      ${owned[u.id] > 0 ? `<span class="item-owned-badge">x${owned[u.id]}</span>` : ''}
-    `;
-
-    if (canAfford) item.addEventListener('click', () => buy(u));
-    container.appendChild(item);
-  }
-}
-
-// ========================
-// BUY
-// ========================
-function buy(u) {
-  const cost = costs[u.id];
-  if (eggs < cost) return;
-  eggs -= cost;
-  owned[u.id]++;
-  eggsPerSec += u.epm;
-  costs[u.id] = Math.ceil(cost * 1.45);
-  updateUI();
-}
-
-// ========================
-// CLICK
-// ========================
-const chickenBtn = document.getElementById('chickenBtn');
-
-chickenBtn.addEventListener('click', function(e) {
-  const rect = chickenBtn.getBoundingClientRect();
+  // Sparks from button center
+  const rect = btn.getBoundingClientRect();
   const cx = rect.left + rect.width / 2;
   const cy = rect.top  + rect.height / 2;
-
-  const gain = Math.max(1, 1 + Math.floor(eggsPerSec * 0.1));
-  eggs      += gain;
-  totalEggs += gain;
-
-  spawnEgg(cx, cy + 30);
-  spawnFloatText(cx, cy - 10, '+' + gain);
-
-  chickenBtn.classList.remove('laying');
-  void chickenBtn.offsetWidth; // reflow to restart anim
-  chickenBtn.classList.add('laying');
-  setTimeout(() => chickenBtn.classList.remove('laying'), 380);
-
-  updateUI();
-});
-
-// ========================
-// AUTO PRODUCTION
-// ========================
-let lastTick = performance.now();
-function gameLoop(now) {
-  const dt = (now - lastTick) / 1000;
-  lastTick = now;
-  if (eggsPerSec > 0) {
-    const gained = eggsPerSec * dt;
-    eggs      += gained;
-    totalEggs += gained;
-    updateUI();
+  for (let i = 0; i < 18; i++) {
+    const spark = document.createElement('div');
+    spark.className = 'spark';
+    const angle = (Math.PI * 2 / 18) * i + Math.random() * 0.4;
+    const dist  = 60 + Math.random() * 80;
+    spark.style.left = cx + 'px';
+    spark.style.top  = cy + 'px';
+    spark.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+    spark.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+    spark.style.background = Math.random() > 0.5 ? '#ff4444' : '#ffaa22';
+    document.body.appendChild(spark);
+    spark.addEventListener('animationend', () => spark.remove());
   }
-  requestAnimationFrame(gameLoop);
-}
-requestAnimationFrame(gameLoop);
-
-updateUI();
+});
 </script>
 </body>
 </html>
