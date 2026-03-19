@@ -19,52 +19,76 @@
 
         #game {
             position: relative;
-            width: 400px;
+            width: 500px;
             height: 400px;
             cursor: pointer;
+            background: url('https://i.imgur.com/9vO7k8L.jpg') center/cover no-repeat; /* Minecraft-style farm background */
+            border: 8px solid #5C4033;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            overflow: hidden;
         }
 
         #chicken {
             position: absolute;
             left: 50%;
-            top: 50%;
+            top: 55%;
             transform: translate(-50%, -50%);
-            width: 220px;
+            width: 180px;
             transition: transform 0.1s;
-            image-rendering: pixelated; /* keeps that nice Minecraft look */
+            image-rendering: pixelated;
+            z-index: 5;
         }
 
         #chicken:active {
-            transform: translate(-50%, -50%) scale(0.9);
+            transform: translate(-50%, -50%) scale(0.92);
         }
 
         .egg {
             position: absolute;
-            width: 60px;
-            height: 80px;
+            width: 55px;
+            height: 75px;
             background-size: contain;
             background-repeat: no-repeat;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
-            animation: layEgg 2.5s forwards;
+            background-position: center;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6));
+            animation: layEgg 2.8s forwards;
             pointer-events: none;
+            z-index: 10;
         }
 
         @keyframes layEgg {
-            0%   { bottom: 80px; left: 170px; transform: scale(0.2) rotate(-20deg); opacity: 0; }
-            30%  { opacity: 1; }
-            70%  { transform: scale(1) rotate(0deg); }
-            100% { bottom: -100px; transform: scale(1) rotate(15deg); opacity: 0; }
+            0%   { bottom: 90px; left: 210px; transform: scale(0.15) rotate(-30deg); opacity: 0; }
+            25%  { opacity: 1; }
+            65%  { transform: scale(1.05) rotate(5deg); }
+            100% { bottom: -120px; left: calc(210px + var(--offset)); transform: scale(0.9) rotate(25deg); opacity: 0; }
         }
 
         #score {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
-            color: white;
-            font-size: 28px;
-            text-shadow: 0 0 10px #000;
-            z-index: 10;
+            color: #fff;
+            font-size: 26px;
+            font-weight: bold;
+            text-shadow: 3px 3px 0 #000, -2px -2px 0 #000;
+            background: rgba(0,0,0,0.4);
+            padding: 6px 18px;
+            border-radius: 8px;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        #title {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #ffeb3b;
+            font-size: 18px;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 20;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -72,12 +96,12 @@
 
 <div id="game">
     <div id="score">Eggs laid: <span id="count">0</span></div>
+    <div id="title">Minecraft Farm</div>
     
-    <!-- Public Minecraft chicken image -->
+    <!-- Reliable direct Minecraft chicken image -->
     <img id="chicken" 
          src="https://i.imgur.com/5Q2pZ3L.png" 
-         alt="Chicken" 
-         width="220">
+         alt="Minecraft Chicken">
 </div>
 
 <script>
@@ -86,42 +110,44 @@
     let eggCount = 0;
     const countEl = document.getElementById('count');
 
-    // Public Minecraft egg image
+    // Reliable direct Minecraft egg image
     const eggSrc = "https://i.imgur.com/0Z8zZ8Z.png";
 
     function playPolb() {
-        const audio = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-        const filter = audio.createBiquadFilter();
-        
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(280, audio.currentTime);
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(800, audio.currentTime);
-        
-        gain.gain.setValueAtTime(1, audio.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
-        
-        osc.connect(filter).connect(gain).connect(audio.destination);
-        osc.start();
-        osc.stop(audio.currentTime + 0.5);
-        
-        // Extra "b" sound
-        setTimeout(() => {
-            const osc2 = audio.createOscillator();
-            osc2.type = 'square';
-            osc2.frequency.setValueAtTime(120, audio.currentTime);
-            const g2 = audio.createGain();
-            g2.gain.value = 0.6;
-            g2.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.25);
-            osc2.connect(g2).connect(audio.destination);
-            osc2.start();
-            osc2.stop(audio.currentTime + 0.3);
-        }, 80);
+        try {
+            const audio = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audio.createOscillator();
+            const gain = audio.createGain();
+            const filter = audio.createBiquadFilter();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(280, audio.currentTime);
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(850, audio.currentTime);
+            
+            gain.gain.setValueAtTime(0.9, audio.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.45);
+            
+            osc.connect(filter).connect(gain).connect(audio.destination);
+            osc.start();
+            osc.stop(audio.currentTime + 0.55);
+            
+            // Second "b" tone
+            setTimeout(() => {
+                const osc2 = audio.createOscillator();
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(135, audio.currentTime);
+                const g2 = audio.createGain();
+                g2.gain.value = 0.5;
+                g2.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.25);
+                osc2.connect(g2).connect(audio.destination);
+                osc2.start();
+                osc2.stop(audio.currentTime + 0.3);
+            }, 90);
+        } catch(e) {}
     }
 
-    chicken.addEventListener('click', (e) => {
+    chicken.addEventListener('click', () => {
         playPolb();
 
         eggCount++;
@@ -131,16 +157,23 @@
         egg.className = 'egg';
         egg.style.backgroundImage = `url('${eggSrc}')`;
         
-        const offset = Math.random() * 60 - 30;
-        egg.style.left = `calc(170px + ${offset}px)`;
+        // Random horizontal offset for variety
+        const offset = (Math.random() * 80 - 40);
+        egg.style.setProperty('--offset', offset + 'px');
+        egg.style.left = `calc(210px + ${offset}px)`;
         
         gameArea.appendChild(egg);
 
-        setTimeout(() => egg.remove(), 3000);
+        // Clean up after animation
+        setTimeout(() => {
+            egg.remove();
+        }, 3200);
     });
 
-    // Press any key to lay an egg too
-    document.addEventListener('keypress', () => chicken.click());
+    // Bonus: any key also clicks the chicken
+    document.addEventListener('keypress', () => {
+        chicken.click();
+    });
 </script>
 
 </body>
