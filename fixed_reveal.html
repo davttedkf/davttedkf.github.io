@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>goldiehdd — classified</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+body {background:#080808;color:#c8c8c8;font-family:'IBM Plex Mono',monospace;text-align:center;padding-top:100px;}
+#timer {font-size:80px;color:#e8170d;}
+.overlay {display:none;position:fixed;inset:0;background:black;justify-content:center;align-items:center;flex-direction:column;}
+.overlay.show {display:flex;}
+#loadingBar {width:0%;height:4px;background:red;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<div id="timer">00:10</div>
+
+<div id="loadingOverlay" class="overlay">
+  <div>LOADING...</div>
+  <div id="loadingBar"></div>
+</div>
+
+<div id="callOverlay" class="overlay">
+  <div>CALLING...</div>
+</div>
+
+<div id="rickOverlay" class="overlay">
+  <div>PROOF WINDOW (REVEALED)</div>
+</div>
+
+<script>
+// DEMO TIMER (replace with your real one)
+let t = 10;
+const timerEl = document.getElementById("timer");
+const interval = setInterval(()=>{
+  t--;
+  timerEl.innerText = "00:" + String(t).padStart(2,"0");
+  if(t<=0){
+    clearInterval(interval);
+    timerEl.innerText = "00:00";
+  }
+},1000);
+
+// FIX SCRIPT (your real fix)
+let sequenceStarted = false;
+
+function startRevealSequence() {
+  if (sequenceStarted) return;
+  sequenceStarted = true;
+
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const callOverlay = document.getElementById("callOverlay");
+  const rickOverlay = document.getElementById("rickOverlay");
+  const bar = document.getElementById("loadingBar");
+
+  loadingOverlay.classList.add("show");
+
+  let progress = 0;
+  const loadInt = setInterval(() => {
+    progress += 2;
+    bar.style.width = progress + "%";
+
+    if (progress >= 100) {
+      clearInterval(loadInt);
+      loadingOverlay.classList.remove("show");
+      callOverlay.classList.add("show");
+
+      setTimeout(() => {
+        callOverlay.classList.remove("show");
+        rickOverlay.classList.add("show");
+      }, 4000);
+    }
+  }, 50);
+}
+
+const timerCheck = setInterval(() => {
+  const timerText = document.getElementById("timer").innerText.trim();
+  if (timerText === "00:00" || timerText === "0:00") {
+    clearInterval(timerCheck);
+    startRevealSequence();
+  }
+}, 500);
+</script>
+
+</body>
+</html>
