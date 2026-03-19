@@ -31,6 +31,7 @@
             transform: translate(-50%, -50%);
             width: 220px;
             transition: transform 0.1s;
+            image-rendering: pixelated; /* keeps that nice Minecraft look */
         }
 
         #chicken:active {
@@ -41,7 +42,8 @@
             position: absolute;
             width: 60px;
             height: 80px;
-            background: url('https://i.imgur.com/0Z8zZ8Z.png') no-repeat center/contain; /* fallback egg */
+            background-size: contain;
+            background-repeat: no-repeat;
             filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
             animation: layEgg 2.5s forwards;
             pointer-events: none;
@@ -60,7 +62,7 @@
             left: 50%;
             transform: translateX(-50%);
             color: white;
-            font-size: 24px;
+            font-size: 28px;
             text-shadow: 0 0 10px #000;
             z-index: 10;
         }
@@ -71,8 +73,11 @@
 <div id="game">
     <div id="score">Eggs laid: <span id="count">0</span></div>
     
-    <!-- Your chicken image -->
-    <img id="chicken" src="vxUGp" alt="Chicken" width="220">
+    <!-- Public Minecraft chicken image -->
+    <img id="chicken" 
+         src="https://i.imgur.com/5Q2pZ3L.png" 
+         alt="Chicken" 
+         width="220">
 </div>
 
 <script>
@@ -81,24 +86,22 @@
     let eggCount = 0;
     const countEl = document.getElementById('count');
 
-    // Use your uploaded egg image (the first one you sent)
-    const eggSrc = "t2e8n";
+    // Public Minecraft egg image
+    const eggSrc = "https://i.imgur.com/0Z8zZ8Z.png";
 
-    // Simple "polb" / cluck sound using Web Audio API (sounds like a funny "polb")
     function playPolb() {
         const audio = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audio.createOscillator();
         const gain = audio.createGain();
+        const filter = audio.createBiquadFilter();
         
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(280, audio.currentTime);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, audio.currentTime);
         
         gain.gain.setValueAtTime(1, audio.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
-        
-        const filter = audio.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(800, audio.currentTime);
         
         osc.connect(filter).connect(gain).connect(audio.destination);
         osc.start();
@@ -119,34 +122,25 @@
     }
 
     chicken.addEventListener('click', (e) => {
-        // Play funny "polb" sound
         playPolb();
 
-        // Increment egg counter
         eggCount++;
         countEl.textContent = eggCount;
 
-        // Create a new egg
         const egg = document.createElement('div');
         egg.className = 'egg';
         egg.style.backgroundImage = `url('${eggSrc}')`;
         
-        // Random slight horizontal offset so eggs don't stack perfectly
         const offset = Math.random() * 60 - 30;
         egg.style.left = `calc(170px + ${offset}px)`;
         
         gameArea.appendChild(egg);
 
-        // Remove egg after animation finishes
-        setTimeout(() => {
-            egg.remove();
-        }, 3000);
+        setTimeout(() => egg.remove(), 3000);
     });
 
-    // Bonus: press any key also lays an egg (for fun)
-    document.addEventListener('keypress', () => {
-        chicken.click();
-    });
+    // Press any key to lay an egg too
+    document.addEventListener('keypress', () => chicken.click());
 </script>
 
 </body>
