@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chicken Clicker - Click to Lay Egg!</title>
+    <title>Chicken Clicker</title>
     <style>
         body {
             margin: 0;
@@ -12,78 +12,87 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: "Comic Sans MS", cursive, sans-serif;
             overflow: hidden;
-            font-family: Arial, sans-serif;
-            user-select: none;
+            color: white;
         }
 
         #game {
             position: relative;
-            width: 520px;
-            height: 400px;
-            cursor: pointer;
+            width: 620px;
+            height: 420px;
             background: url('https://tse3.mm.bing.net/th/id/OIP.UAKbI7cIOQy0rkg8Zg1pNQHaEK?rs=1&pid=ImgDetMain&o=7&rm=3') center/cover no-repeat;
-            border: 10px solid #5C4033;
-            border-radius: 12px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+            border: 12px solid #5C4033;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
             overflow: hidden;
         }
 
         #chicken {
             position: absolute;
             left: 50%;
-            top: 52%;
+            top: 48%;
             transform: translate(-50%, -50%);
-            width: 190px;
-            transition: transform 0.08s;
-            z-index: 5;
+            width: 210px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            z-index: 10;
             image-rendering: pixelated;
         }
 
         #chicken:active {
-            transform: translate(-50%, -50%) scale(0.88);
+            transform: translate(-50%, -50%) scale(0.85);
         }
 
         .egg {
             position: absolute;
-            width: 58px;
-            height: 78px;
+            width: 55px;
+            height: 75px;
             background: url('https://gamepedia.cursecdn.com/minecraft_gamepedia/9/96/Egg_JE2_BE2.png') center/contain no-repeat;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
-            animation: layEgg 2.8s forwards;
+            filter: drop-shadow(0 10px 15px #000);
             pointer-events: none;
-            z-index: 10;
+            z-index: 5;
+            animation: layEgg 2.8s forwards;
         }
 
         @keyframes layEgg {
-            0%   { bottom: 95px; left: 220px; transform: scale(0.1) rotate(-35deg); opacity: 0; }
+            0%   { bottom: 100px; left: 260px; transform: scale(0.1) rotate(-40deg); opacity: 0; }
             30%  { opacity: 1; }
-            70%  { transform: scale(1.1) rotate(8deg); }
-            100% { bottom: -130px; transform: scale(0.95) rotate(30deg); opacity: 0; }
+            70%  { transform: scale(1.1) rotate(10deg); }
+            100% { bottom: -140px; transform: scale(0.9) rotate(35deg); opacity: 0; }
         }
 
         #score {
             position: absolute;
-            top: 18px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            color: white;
-            font-size: 28px;
+            font-size: 36px;
             font-weight: bold;
-            text-shadow: 3px 3px 0 #000;
-            background: rgba(0,0,0,0.45);
-            padding: 8px 20px;
-            border-radius: 10px;
+            text-shadow: 4px 4px 0 #000;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 30px;
+            border-radius: 12px;
             z-index: 20;
+        }
+
+        #click-info {
+            position: absolute;
+            font-size: 18px;
+            color: #ffeb3b;
+            text-shadow: 2px 2px 0 #000;
+            pointer-events: none;
+            z-index: 30;
+            animation: floatUp 1.2s forwards;
         }
 
         #title {
             position: absolute;
-            top: 18px;
-            right: 18px;
+            top: 25px;
+            right: 25px;
+            font-size: 22px;
             color: #ffeb3b;
-            font-size: 19px;
-            text-shadow: 2px 2px 0 #000;
+            text-shadow: 3px 3px 0 #000;
             z-index: 20;
         }
     </style>
@@ -91,12 +100,12 @@
 <body>
 
 <div id="game">
-    <div id="score">Eggs laid: <span id="count">0</span></div>
-    <div id="title">Farm Clicker</div>
+    <div id="score">Eggs: <span id="count">0</span></div>
+    <div id="title">Minecraft Chicken Clicker</div>
     
-    <!-- Your chicken image -->
+    <!-- Your new chicken image -->
     <img id="chicken" 
-         src="https://image.pngaaa.com/441/611441-middle.png" 
+         src="https://i.imgur.com/yfxY2.png" 
          alt="Chicken">
 </div>
 
@@ -114,49 +123,67 @@
             const filter = audio.createBiquadFilter();
             
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(280, audio.currentTime);
+            osc.frequency.setValueAtTime(260, audio.currentTime);
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(850, audio.currentTime);
+            filter.frequency.setValueAtTime(900, audio.currentTime);
             
-            gain.gain.setValueAtTime(0.9, audio.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.45);
+            gain.gain.setValueAtTime(1, audio.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
             
             osc.connect(filter).connect(gain).connect(audio.destination);
             osc.start();
-            osc.stop(audio.currentTime + 0.55);
+            osc.stop(audio.currentTime + 0.5);
             
             setTimeout(() => {
                 const osc2 = audio.createOscillator();
                 osc2.type = 'square';
-                osc2.frequency.setValueAtTime(135, audio.currentTime);
+                osc2.frequency.setValueAtTime(140, audio.currentTime);
                 const g2 = audio.createGain();
-                g2.gain.value = 0.5;
-                g2.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.25);
+                g2.gain.value = 0.6;
+                g2.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.22);
                 osc2.connect(g2).connect(audio.destination);
                 osc2.start();
                 osc2.stop(audio.currentTime + 0.3);
-            }, 90);
+            }, 70);
         } catch(e) {}
     }
 
-    chicken.addEventListener('click', () => {
+    function createFloatingText(x, y) {
+        const text = document.createElement('div');
+        text.id = 'click-info';
+        text.textContent = '+1';
+        text.style.left = x + 'px';
+        text.style.top = y + 'px';
+        gameArea.appendChild(text);
+
+        setTimeout(() => text.remove(), 1300);
+    }
+
+    chicken.addEventListener('click', (e) => {
         playPolb();
 
         eggCount++;
         countEl.textContent = eggCount;
 
+        // Floating +1 text near click
+        const rect = chicken.getBoundingClientRect();
+        const gameRect = gameArea.getBoundingClientRect();
+        const clickX = e.clientX - gameRect.left + (Math.random() * 40 - 20);
+        const clickY = e.clientY - gameRect.top - 30;
+        createFloatingText(clickX, clickY);
+
+        // Lay an egg
         const egg = document.createElement('div');
         egg.className = 'egg';
         
-        const offset = Math.random() * 90 - 45;
-        egg.style.left = `calc(220px + ${offset}px)`;
+        const offset = Math.random() * 100 - 50;
+        egg.style.left = `calc(260px + ${offset}px)`;
         
         gameArea.appendChild(egg);
-
-        setTimeout(() => egg.remove(), 3200);
+        setTimeout(() => egg.remove(), 3100);
     });
 
-    // Press any key to also lay an egg
+    // Keyboard support
     document.addEventListener('keypress', () => chicken.click());
 </script>
 
